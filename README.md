@@ -15,7 +15,7 @@ The **SEDATED&#174;** Project (Sensitive Enterprise Data Analyzer To Eliminate D
   - [`pre-receive.sh`](#preReceive)
   - [`/config/custom_configs.sh`](#customConfigs)
   - [`/config/enforced_repos_list.txt`](#enforcedReposList)
-  - [`/config/regexes.json`](#regexes)
+  - [`/config/regexes.tsv`](#regexes)
   - [`/config/whitelists/commit_whitelist.txt`](#commitWhitelist)
   - [`/config/whitelists/repo_whitelist.txt`](#repoWhitelist)
   - [`/testing/regex_testing/regex_test_script.sh`](#regexTestScript)
@@ -66,7 +66,7 @@ Instructions for accomplishing this on a GitHub Enterprise instance can be found
 ## <a id="fileDescriptions">File Descriptions</a>
 ##### <a id="preReceive">`pre-receive.sh`</a>
 - The heart and soul of **SEDATED&#174;**.
-- The **SEDATED&#174;** pre-receive Git hook script used in conjunction with **SEDATED&#174;**'s regexes (config/regexes.json), identifies added or modified lines of code being pushed to a Git instance that contain hard-coded credentials/sensitive data (as identified in config/regexes.json) and prevents the push **IF** lines containing hard-coded credentials/sensitive data are found.
+- The **SEDATED&#174;** pre-receive Git hook script used in conjunction with **SEDATED&#174;**'s regexes (config/regexes.tsv), identifies added or modified lines of code being pushed to a Git instance that contain hard-coded credentials/sensitive data (as identified in config/regexes.tsv) and prevents the push **IF** lines containing hard-coded credentials/sensitive data are found.
 ##### <a id="customConfigs">`/config/custom_configs.sh`</a>
 - The **SEDATED&#174;** custom configurations file used in conjunction with `pre-receive.sh` allows organizations to customize their **SEDATED&#174;** implementation without having to modify any of the source code within **SEDATED&#174;**'s `pre-receive.sh` file by providing built-in customizable variables and functions that are sourced from `pre-receive.sh`.
 ##### <a id="enforcedReposList">`/config/enforced_repos_list.txt`</a>
@@ -78,11 +78,11 @@ Instructions for accomplishing this on a GitHub Enterprise instance can be found
   - "False"  - Every repository with **SEDATED&#174;** "enabled" will also have **SEDATED&#174;** "enforced" on it.
   - "True" - Only repositories with **SEDATED&#174;** "enabled" AND listed in the `/config/enforced_repos_list.txt` will have **SEDATED&#174;** "enforced" on them. All other repositories with **SEDATED&#174;** "enabled" but not listed in the `/config/enforced_repos_list.txt` file will only see a custom message displayed, no code will be scanned for pushes from those repositories.
 - This file can be blank, only needs to exist if `use_enforced_repo_check_custom` flag in `config/custom_configs.sh` is set to "True".
-##### <a id="regexes">`/config/regexes.json`</a>
+##### <a id="regexes">`/config/regexes.tsv`</a>
 - Contains the regular expressions (regexes) used to flag sensitive data/hard-coded credentials.
 - These regexes are consumed by GNU grep (in `pre-receive.sh`) with the `-P` flag making them Perl-compatible regular expressions (PCREs).
 - Regexes may be added or removed from this file as-needed, however if utilizing the `/testing/regex_testing/regex_test_script.sh` script the `/testing/regex_testing/test_cases.txt` file will need to updated by adding or removing the test cases pertaining to the updated regexes so the results from the `/testing/regex_testing/regex_test_script.sh` will be accurate.
-- If adding/modifying regexes in this file additional escape characters `\` may be needed depending on the desired regexes since this file is in JSON format.
+- If adding/modifying regexes in this file, take note that columns are separated by literal tabs since this file is in TSV format.
 ##### <a id="commitWhitelist">`/config/whitelists/commit_whitelist.txt`</a>
 - Utilized in the case of a false positive, one or more commits can be excluded in the scanning process if their commit ID's are included in this file.
 - Commit ID's will need to be carriage return separated in this file as shown in the `/config/whitelists/commit_whitelist.txt.example` file.
@@ -94,7 +94,7 @@ Instructions for accomplishing this on a GitHub Enterprise instance can be found
 - (organization/username)/repository names need to be carriage return separated in this file as shown in the `/config/whitelists/repo_whitelist.txt.example` file.
 - This file can be blank, but does need to exist.
 ##### <a id="regexTestScript">`/testing/regex_testing/regex_test_script.sh`</a>
-- The **SEDATED&#174;** regular expression testing script used in conjunction with `testing/regex_testing/test_cases.txt` is a simple, quick, offline way to test/validate that the regular expressions inside `config/regexes.json` are valid and matching the desired patterns as well as excluding/not matching as desired.
+- The **SEDATED&#174;** regular expression testing script used in conjunction with `testing/regex_testing/test_cases.txt` is a simple, quick, offline way to test/validate that the regular expressions inside `config/regexes.tsv` are valid and matching the desired patterns as well as excluding/not matching as desired.
   - Tests regexes against a list of test cases (`/testing/regex_testing/test_cases.txt`) to verify regexes working as expected.
   - Includes testing for both positive and negative test cases (`/testing/regex_testing/test_cases.txt`).
   - **MUST use GNU grep** when running the script otherwise the script will fail (BSD grep does not have the `-P` flag).
@@ -135,7 +135,7 @@ Custom variables and functions are designed to allow organizations to easily cus
   - Take additional custom action when a push is accepted (i.e. log, send metrics, etc...).
   - Defaults to `:` "do nothing" as an additional action, and is not required to be changed.
 - `UNABLE_TO_ACCESS_REGEXES_CUSTOM`
-  - Take additional custom action when **SEDATED&#174;** is unable to access the regexes.json file.
+  - Take additional custom action when **SEDATED&#174;** is unable to access the regexes.tsv file.
   - Defaults to `:` "do nothing" as an additional action, and is not required to be changed.
   - **SEDATED&#174;** will `exit 1` and print error message if unable to access regexes, however additional custom action may be performed in these cases if desired (i.e. print additional error message, log, send metric, etc...).
 - `PUSH_REJECTED_WITH_VIOLATIONS_CUSTOM`

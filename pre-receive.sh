@@ -45,7 +45,7 @@
 start_time=$(date +%s%N)
 execution_time_ms=0
 my_path=${0%/*}
-regexes=${my_path}/config/regexes.json
+regexes=${my_path}/config/regexes.tsv
 commit_whitelist=${my_path}/config/whitelists/commit_whitelist.txt
 repo_whitelist=${my_path}/config/whitelists/repo_whitelist.txt
 enforced_repos_list=${my_path}/config/enforced_repos_list.txt
@@ -269,7 +269,7 @@ function CHECK_IF_REPO_IS_WHITELISTED() {
 # Create pipe delimited regex_string from regexes json output
 function CREATE_PIPE_DELIMITED_REGEX_STRING() {
   if [[ -f "$regexes" ]]; then # check if config/regexes.json file exists
-    regex_string=$(cat "${regexes}" | grep -Po ':[[:space:]]*\"[[:space:]]*\K(.*)' | sed 's/[[:space:]]*"[[:space:]]*}[[:space:]]*,/|/' | tr -d '\n' | sed 's/\\\\/\\/g' | sed '$s/"}$//' )
+    regex_string=$(cat "${regexes}" | tail -n +2 | cut -f 2 | sed 's/$/|/' | tr -d '\n' | sed 's/.$//' )
   fi
   # If no regexes included in the config/regexes.json file
   if [[ ! "$regex_string" ]]; then
